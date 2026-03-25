@@ -1,0 +1,132 @@
+{
+  "entities": {
+    "Transaction": {
+      "title": "Transaction",
+      "description": "A financial transaction",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The UID of the user who owns this transaction"
+        },
+        "date": {
+          "type": "string",
+          "description": "Date of the transaction in YYYY-MM-DD format"
+        },
+        "amount": {
+          "type": "number",
+          "description": "Absolute amount of the transaction"
+        },
+        "description": {
+          "type": "string",
+          "description": "Short description of the transaction"
+        },
+        "category": {
+          "type": "string",
+          "description": "Category of the transaction"
+        },
+        "type": {
+          "type": "string",
+          "description": "'income' or 'expense'"
+        },
+        "kind": {
+          "type": "string",
+          "description": "Transaction kind"
+        },
+        "scope": {
+          "type": "string",
+          "description": "Transaction scope"
+        },
+        "accountId": {
+          "type": "string",
+          "description": "Account ID"
+        },
+        "accountName": {
+          "type": "string",
+          "description": "Account Name"
+        },
+        "counterparty": {
+          "type": "string",
+          "description": "Counterparty"
+        },
+        "source": {
+          "type": "string",
+          "description": "Source of the transaction (e.g., manual, ai)"
+        },
+        "aiConfidence": {
+          "type": "number",
+          "description": "AI confidence score"
+        },
+        "tags": {
+          "type": "array",
+          "description": "Tags"
+        },
+        "fingerprint": {
+          "type": "string",
+          "description": "Fingerprint for idempotency"
+        },
+        "createdAt": {
+          "type": "timestamp",
+          "description": "When the transaction was created"
+        }
+      },
+      "required": [
+        "userId",
+        "date",
+        "amount",
+        "description",
+        "category",
+        "type",
+        "createdAt"
+      ]
+    },
+    "SavedAIReport": {
+      "title": "SavedAIReport",
+      "description": "An AI generated financial report",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The UID of the user who owns this report"
+        },
+        "date": {
+          "type": "number",
+          "description": "Date of the report generation in milliseconds"
+        },
+        "periodName": {
+          "type": "string",
+          "description": "The period the report covers"
+        },
+        "reportType": {
+          "type": "string",
+          "description": "Type of the report (e.g., tldr, audit, savings)"
+        },
+        "content": {
+          "type": "string",
+          "description": "Markdown content of the report"
+        }
+      },
+      "required": [
+        "userId",
+        "date",
+        "periodName",
+        "reportType",
+        "content"
+      ]
+    }
+  },
+  "firestore": {
+    "/transactions/{transactionId}": {
+      "schema": {
+        "$ref": "#/entities/Transaction"
+      },
+      "description": "User transactions"
+    },
+    "/ai_reports/{reportId}": {
+      "schema": {
+        "$ref": "#/entities/SavedAIReport"
+      },
+      "description": "Saved AI reports"
+    }
+  }
+}

@@ -1,0 +1,142 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: transactions
+    // Document ID: auto-generated
+    // Fields:
+    //   - userId: string (required, immutable) - The UID of the user
+    //   - date: string (required) - YYYY-MM-DD
+    //   - amount: number (required, positive) - Absolute amount
+    //   - description: string (required, max 500 chars) - Description
+    //   - category: string (required, max 100 chars) - Category
+    //   - type: string (required, 'income' or 'expense') - Type
+    //   - kind: string (optional) - Transaction kind
+    //   - scope: string (optional) - Transaction scope
+    //   - accountId: string (optional) - Account ID
+    //   - accountName: string (optional) - Account Name
+    //   - counterparty: string (optional) - Counterparty
+    //   - source: string (optional) - Source of the transaction
+    //   - aiConfidence: number (optional) - AI confidence score
+    //   - tags: list (optional) - Tags
+    //   - fingerprint: string (optional) - Fingerprint for idempotency
+    //   - createdAt: timestamp (required, immutable) - Creation time
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isDocOwner() {
+      return isAuthenticated() && request.auth.uid == resource.data.userId;
+    }
+    
+    function uidUnchanged() {
+      return !('userId' in request.resource.data) || request.resource.data.userId == request.auth.uid;
+    }
+    
+    function uidNotModified() {
+      return !('userId' in request.resource.data) || request.resource.data.userId == resource.data.userId;
+    }
+    
+    function createdAtNotModified() {
+      return !('createdAt' in request.resource.data) || request.resource.data.createdAt == resource.data.createdAt;
+    }
+    
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+    
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    function isValidTransaction() {
+      let data = request.resource.data;
+      return hasRequiredFields(['userId', 'date', 'amount', 'description', 'category', 'type', 'createdAt']) &&
+             hasOnlyAllowedFields(['userId', 'date', 'amount', 'description', 'category', 'type', 'createdAt', 'kind', 'scope', 'accountId', 'accountName', 'counterparty', 'source', 'aiConfidence', 'tags', 'fingerprint']) &&
+             data.userId is string && data.userId.size() > 0 && data.userId.size() < 100 &&
+             data.date is string && data.date.size() == 10 &&
+             data.amount is number && data.amount >= 0 &&
+             data.description is string && data.description.size() <= 500 &&
+             data.category is string && data.category.size() <= 100 &&
+             data.type in ['income', 'expense'] &&
+             (!('kind' in data) || (data.kind is string && data.kind.size() <= 50)) &&
+             (!('scope' in data) || (data.scope is string && data.scope.size() <= 50)) &&
+             (!('accountId' in data) || (data.accountId is string && data.accountId.size() <= 100)) &&
+             (!('accountName' in data) || (data.accountName is string && data.accountName.size() <= 100)) &&
+             (!('counterparty' in data) || (data.counterparty is string && data.counterparty.size() <= 100)) &&
+             (!('source' in data) || (data.source is string && data.source in ['manual', 'ai'])) &&
+             (!('aiConfidence' in data) || (data.aiConfidence is number && data.aiConfidence >= 0 && data.aiConfidence <= 1)) &&
+             (!('tags' in data) || (data.tags is list && data.tags.size() <= 20)) &&
+             (!('fingerprint' in data) || (data.fingerprint is string && data.fingerprint.size() <= 1000)) &&
+             data.createdAt is timestamp;
+    }
+
+    function isValidAIReport() {
+      let data = request.resource.data;
+      return hasRequiredFields(['userId', 'date', 'periodName', 'reportType', 'content']) &&
+             hasOnlyAllowedFields(['userId', 'date', 'periodName', 'reportType', 'content']) &&
+             data.userId is string && data.userId.size() > 0 && data.userId.size() < 100 &&
+             data.date is number && data.date > 0 &&
+             data.periodName is string && data.periodName.size() <= 100 &&
+             data.reportType is string && data.reportType.size() <= 100 &&
+             data.content is string && data.content.size() <= 50000;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+    match /transactions/{transactionId} {
+      // Read: Only the owner can read their transactions
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      
+      // Create: Must be authenticated, set themselves as owner, and data must be valid
+      allow create: if isAuthenticated() && 
+                    request.resource.data.userId == request.auth.uid && 
+                    isValidTransaction() && 
+                    uidUnchanged();
+                    
+      // Update: Must be owner, data must be valid, cannot change owner or creation time
+      allow update: if isAuthenticated() && 
+                    resource.data.userId == request.auth.uid && 
+                    isValidTransaction() && 
+                    uidNotModified() && 
+                    createdAtNotModified();
+                    
+      // Delete: Only the owner can delete
+      allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+
+    match /ai_reports/{reportId} {
+      // Read: Only the owner can read their reports
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      
+      // Create: Must be authenticated, set themselves as owner, and data must be valid
+      allow create: if isAuthenticated() && 
+                    request.resource.data.userId == request.auth.uid && 
+                    isValidAIReport() && 
+                    uidUnchanged();
+                    
+      // Update: Must be owner, data must be valid, cannot change owner
+      allow update: if isAuthenticated() && 
+                    resource.data.userId == request.auth.uid && 
+                    isValidAIReport() && 
+                    uidNotModified();
+                    
+      // Delete: Only the owner can delete
+      allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+  }
+}
