@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
-import { Transaction, RegularPayment, DEFAULT_CATEGORIES } from './types';
+import { Transaction, RegularPayment, PaymentOccurrence, DEFAULT_CATEGORIES } from './types';
 import { Wallet, LogIn } from 'lucide-react';
 import { auth, db, loginWithGoogle, logout } from './firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
@@ -42,7 +42,7 @@ function handleFirestoreError(error: unknown, operationType: OperationType, path
     },
     operationType,
     path
-  }
+  };
   console.error('Firestore Error: ', JSON.stringify(errInfo));
   throw new Error(JSON.stringify(errInfo));
 }
@@ -53,27 +53,24 @@ function AppContent() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [regularPayments, setRegularPayments] = useState<RegularPayment[]>([]);
   const [paymentOccurrences, setPaymentOccurrences] = useState<PaymentOccurrence[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<Tab>('input');
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const { language, hasSeenOnboarding } = useSettings();
 
-  // Test connection on boot
   useEffect(() => {
     async function testConnection() {
       try {
         await getDocFromServer(doc(db, 'test', 'connection'));
       } catch (error) {
-        if(error instanceof Error && error.message.includes('the client is offline')) {
-          console.error("Please check your Firebase configuration.");
+        if (error instanceof Error && error.message.includes('the client is offline')) {
+          console.error('Please check your Firebase configuration.');
         }
       }
     }
     testConnection();
   }, []);
 
-  // Auth listener
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -82,7 +79,6 @@ function AppContent() {
     return () => unsubscribe();
   }, []);
 
-  // Fetch transactions from Firestore
   useEffect(() => {
     if (!isAuthReady || !user) {
       setTransactions([]);
@@ -92,20 +88,18 @@ function AppContent() {
     const q = query(collection(db, 'transactions'), where('userId', '==', user.uid));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const txs: Transaction[] = [];
-      snapshot.forEach((doc) => {
-        txs.push({ id: doc.id, ...doc.data() } as Transaction);
+      snapshot.forEach((item) => {
+        txs.push({ id: item.id, ...item.data() } as Transaction);
       });
-      // Sort by date descending
       txs.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
       setTransactions(txs);
-    }, (error) => {
-      handleFirestoreError(error, OperationType.LIST, 'transactions');
+    }, (err) => {
+      handleFirestoreError(err, OperationType.LIST, 'transactions');
     });
 
     return () => unsubscribe();
   }, [user, isAuthReady]);
 
-  // Fetch regular payments from Firestore
   useEffect(() => {
     if (!isAuthReady || !user) {
       setRegularPayments([]);
@@ -115,18 +109,17 @@ function AppContent() {
     const q = query(collection(db, 'regularPayments'), where('userId', '==', user.uid));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const payments: RegularPayment[] = [];
-      snapshot.forEach((doc) => {
-        payments.push({ id: doc.id, ...doc.data() } as RegularPayment);
+      snapshot.forEach((item) => {
+        payments.push({ id: item.id, ...item.data() } as RegularPayment);
       });
       setRegularPayments(payments);
-    }, (error) => {
-      handleFirestoreError(error, OperationType.LIST, 'regularPayments');
+    }, (err) => {
+      handleFirestoreError(err, OperationType.LIST, 'regularPayments');
     });
 
     return () => unsubscribe();
   }, [user, isAuthReady]);
 
-  // Fetch payment occurrences from Firestore
   useEffect(() => {
     if (!isAuthReady || !user) {
       setPaymentOccurrences([]);
@@ -136,12 +129,12 @@ function AppContent() {
     const q = query(collection(db, 'paymentOccurrences'), where('userId', '==', user.uid));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const occs: PaymentOccurrence[] = [];
-      snapshot.forEach((doc) => {
-        occs.push({ id: doc.id, ...doc.data() } as PaymentOccurrence);
+      snapshot.forEach((item) => {
+        occs.push({ id: item.id, ...item.data() } as PaymentOccurrence);
       });
       setPaymentOccurrences(occs);
-    }, (error) => {
-      handleFirestoreError(error, OperationType.LIST, 'paymentOccurrences');
+    }, (err) => {
+      handleFirestoreError(err, OperationType.LIST, 'paymentOccurrences');
     });
 
     return () => unsubscribe();
@@ -149,13 +142,13 @@ function AppContent() {
 
   const uniqueCategories = useMemo(() => {
     const categories = new Set(DEFAULT_CATEGORIES);
-    transactions.forEach(t => categories.add(t.category));
+    transactions.forEach((t) => categories.add(t.category));
     return Array.from(categories).sort();
   }, [transactions]);
 
   const handleSave = async (parsedTransactions: Omit<Transaction, 'id' | 'userId' | 'createdAt'>[]) => {
     if (!user) return;
-    
+
     try {
       for (const p of parsedTransactions) {
         await addDoc(collection(db, 'transactions'), {
@@ -165,34 +158,32 @@ function AppContent() {
         });
       }
       toast.success(language === 'ru' ? 'Транзакции сохранены' : 'Transactions saved');
-    } catch (error) {
+    } catch (err) {
       toast.error(language === 'ru' ? 'Ошибка сохранения' : 'Error saving transactions');
-      handleFirestoreError(error, OperationType.CREATE, 'transactions');
+      handleFirestoreError(err, OperationType.CREATE, 'transactions');
     }
   };
 
   const handleEdit = (id: string) => {
-    const transaction = transactions.find(t => t.id === id);
-    if (transaction) {
-      setEditingTransaction(transaction);
-    }
+    const transaction = transactions.find((t) => t.id === id);
+    if (transaction) setEditingTransaction(transaction);
   };
 
   const handleSaveEdit = async (id: string, data: Partial<Transaction>) => {
     try {
       await updateDoc(doc(db, 'transactions', id), data);
       toast.success(language === 'ru' ? 'Изменения сохранены' : 'Changes saved');
-    } catch (error) {
+    } catch (err) {
       toast.error(language === 'ru' ? 'Ошибка сохранения' : 'Error saving changes');
-      handleFirestoreError(error, OperationType.UPDATE, `transactions/${id}`);
+      handleFirestoreError(err, OperationType.UPDATE, `transactions/${id}`);
     }
   };
 
   const handleDelete = async (id: string) => {
     if (!user) return;
-    
-    const transactionToDelete = transactions.find(t => t.id === id);
-    
+
+    const transactionToDelete = transactions.find((t) => t.id === id);
+
     try {
       await deleteDoc(doc(db, 'transactions', id));
       toast.success(language === 'ru' ? 'Транзакция удалена' : 'Transaction deleted', {
@@ -208,16 +199,16 @@ function AppContent() {
                   createdAt: serverTimestamp()
                 });
                 toast.success(language === 'ru' ? 'Восстановлено' : 'Restored');
-              } catch (e) {
+              } catch {
                 toast.error(language === 'ru' ? 'Ошибка восстановления' : 'Restore error');
               }
             }
           }
         }
       });
-    } catch (error) {
+    } catch (err) {
       toast.error(language === 'ru' ? 'Ошибка удаления' : 'Error deleting transaction');
-      handleFirestoreError(error, OperationType.DELETE, `transactions/${id}`);
+      handleFirestoreError(err, OperationType.DELETE, `transactions/${id}`);
     }
   };
 
@@ -225,7 +216,7 @@ function AppContent() {
     if (transactions.length === 0) return;
 
     const headers = ['Date', 'Category', 'Description', 'Type', 'Amount'];
-    const rows = transactions.map(t => [
+    const rows = transactions.map((t) => [
       t.date,
       `"${t.category}"`,
       `"${t.description.replace(/"/g, '""')}"`,
@@ -233,18 +224,18 @@ function AppContent() {
       t.amount.toString()
     ]);
 
-    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const csvContent = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
-    
+
     link.setAttribute('href', url);
     link.setAttribute('download', `finance_2026_export_${new Date().toISOString().split('T')[0]}.csv`);
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    
+
     toast.success(language === 'ru' ? 'Экспорт завершен' : 'Export completed');
   };
 
@@ -264,7 +255,9 @@ function AppContent() {
             <Wallet className="w-8 h-8 text-primary" />
           </div>
           <h1 className="text-h1 mb-2">Finance 2026</h1>
-          <p className="text-body text-muted-foreground mb-8">Sign in to securely track your personal and business finances.</p>
+          <p className="text-body text-muted-foreground mb-8">
+            Sign in to securely track your personal and business finances.
+          </p>
           <button
             onClick={loginWithGoogle}
             className="w-full flex items-center justify-center gap-3 bg-foreground text-background hover:bg-foreground/90 font-medium py-3 px-4 rounded-xl transition-colors"
@@ -278,15 +271,15 @@ function AppContent() {
   }
 
   return (
-    <AppShell 
-      user={user} 
-      onLogout={logout} 
-      activeTab={activeTab} 
+    <AppShell
+      user={user}
+      onLogout={logout}
+      activeTab={activeTab}
       onTabChange={setActiveTab}
     >
       {!hasSeenOnboarding && <Onboarding />}
       <Toaster position="top-center" richColors />
-      
+
       {error && (
         <div className="mb-8 p-4 bg-destructive/10 border border-destructive/20 rounded-2xl text-destructive text-sm">
           {error}
@@ -294,50 +287,48 @@ function AppContent() {
       )}
 
       {activeTab === 'input' && (
-        <InputView 
-          onSave={handleSave} 
-          recentTransactions={transactions.slice(0, 5)} 
+        <InputView
+          onSave={handleSave}
+          recentTransactions={transactions.slice(0, 5)}
           uniqueCategories={uniqueCategories}
         />
       )}
-      
+
       {activeTab === 'history' && (
-        <HistoryView 
-          transactions={transactions} 
-          onEdit={handleEdit} 
-          onDelete={handleDelete} 
-          onExportCSV={handleExportCSV} 
+        <HistoryView
+          transactions={transactions}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          onExportCSV={handleExportCSV}
         />
       )}
-      
+
       {activeTab === 'dashboard' && (
-        <DashboardView 
-          transactions={transactions} 
+        <DashboardView
+          transactions={transactions}
           onNavigate={setActiveTab}
         />
       )}
-      
+
       {activeTab === 'calendar' && (
-        <CalendarView 
+        <CalendarView
           transactions={transactions}
           regularPayments={regularPayments}
           paymentOccurrences={paymentOccurrences}
         />
       )}
-      
-      {activeTab === 'archive' && (
-        <ReportsArchiveView />
-      )}
-      
+
+      {activeTab === 'archive' && <ReportsArchiveView />}
+
       {activeTab === 'settings' && (
         <SettingsView transactions={transactions} />
       )}
 
-      <EditModal 
-        transaction={editingTransaction} 
-        isOpen={!!editingTransaction} 
-        onClose={() => setEditingTransaction(null)} 
-        onSave={handleSaveEdit} 
+      <EditModal
+        transaction={editingTransaction}
+        isOpen={!!editingTransaction}
+        onClose={() => setEditingTransaction(null)}
+        onSave={handleSaveEdit}
         categories={uniqueCategories}
       />
     </AppShell>
