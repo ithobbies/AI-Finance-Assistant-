@@ -45,7 +45,7 @@ export function ReportsArchiveView() {
     return (
       <div className="w-full h-64 flex flex-col items-center justify-center space-y-4">
         <Loader2 className="w-8 h-8 text-primary animate-spin" />
-        <p className="text-muted">
+        <p className="text-muted-foreground">
           {language === 'ru' ? 'Загрузка архива...' : 'Loading archive...'}
         </p>
       </div>
@@ -56,7 +56,7 @@ export function ReportsArchiveView() {
     return (
       <div className="w-full h-64 flex flex-col items-center justify-center space-y-4 text-center">
         <div className="w-16 h-16 bg-secondary rounded-full flex items-center justify-center">
-          <Archive className="w-8 h-8 text-muted" />
+          <Archive className="w-8 h-8 text-muted-foreground" />
         </div>
         <div>
           <h3 className="text-h3">
@@ -94,7 +94,7 @@ export function ReportsArchiveView() {
               className="w-full flex items-center justify-between p-5 text-left"
             >
               <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6">
-                <div className="flex items-center gap-2 text-body font-semibold">
+                <div className="flex items-center gap-2 text-body font-medium">
                   <FileText className="w-4 h-4 text-primary" />
                   {report.reportType}
                 </div>
@@ -109,7 +109,7 @@ export function ReportsArchiveView() {
                 </div>
               </div>
               
-              <div className="p-1 bg-secondary rounded-full text-muted">
+              <div className="p-1 bg-secondary rounded-full text-muted-foreground">
                 {expandedId === report.id ? (
                   <ChevronUp className="w-5 h-5" />
                 ) : (

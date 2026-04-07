@@ -82,10 +82,8 @@ export function TransactionFiltersSheet({
             {language === 'ru' ? 'Фильтры' : 'Filters'}
           </h2>
           <button 
-            type="button"
-            aria-label="Close filters"
             onClick={onClose}
-            className="btn-icon -mr-2"
+            className="p-2 -mr-2 text-muted-foreground hover:text-foreground rounded-full bg-secondary"
           >
             <X className="w-5 h-5" />
           </button>
@@ -102,19 +100,19 @@ export function TransactionFiltersSheet({
             <div className="flex gap-2">
               <button 
                 onClick={() => setFilterType('all')}
-                className={cn("flex-1 h-11 rounded-xl text-caption font-medium transition-all border active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2", filterType === 'all' ? "bg-foreground text-background border-foreground shadow-sm" : "bg-transparent text-muted border-border hover:bg-secondary/50 hover:text-foreground")}
+                className={cn("flex-1 py-2.5 rounded-xl text-caption font-medium transition-colors border", filterType === 'all' ? "bg-foreground text-background border-foreground" : "bg-transparent text-muted-foreground border-border")}
               >
                 {language === 'ru' ? 'Все' : 'All'}
               </button>
               <button 
                 onClick={() => setFilterType('income')}
-                className={cn("flex-1 h-11 rounded-xl text-caption font-medium transition-all border active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2", filterType === 'income' ? "bg-success text-success-foreground border-success shadow-sm" : "bg-transparent text-muted border-border hover:bg-secondary/50 hover:text-foreground")}
+                className={cn("flex-1 py-2.5 rounded-xl text-caption font-medium transition-colors border", filterType === 'income' ? "bg-success text-success-foreground border-success" : "bg-transparent text-muted-foreground border-border")}
               >
                 {language === 'ru' ? 'Доходы' : 'Income'}
               </button>
               <button 
                 onClick={() => setFilterType('expense')}
-                className={cn("flex-1 h-11 rounded-xl text-caption font-medium transition-all border active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2", filterType === 'expense' ? "bg-destructive text-destructive-foreground border-destructive shadow-sm" : "bg-transparent text-muted border-border hover:bg-secondary/50 hover:text-foreground")}
+                className={cn("flex-1 py-2.5 rounded-xl text-caption font-medium transition-colors border", filterType === 'expense' ? "bg-destructive text-destructive-foreground border-destructive" : "bg-transparent text-muted-foreground border-border")}
               >
                 {language === 'ru' ? 'Расходы' : 'Expenses'}
               </button>
@@ -140,7 +138,7 @@ export function TransactionFiltersSheet({
                     "flex items-center justify-between px-4 py-3 rounded-xl text-caption font-medium border transition-colors",
                     sortBy === option.id 
                       ? "bg-primary/10 border-primary/30 text-primary" 
-                      : "bg-transparent border-border text-muted"
+                      : "bg-transparent border-border text-muted-foreground"
                   )}
                 >
                   {option.label}
@@ -157,7 +155,7 @@ export function TransactionFiltersSheet({
             </h3>
             <div className="flex items-center gap-3">
               <div className="flex-1">
-                <label className="block text-xs text-muted mb-1">{language === 'ru' ? 'С' : 'From'}</label>
+                <label className="block text-xs text-muted-foreground mb-1">{language === 'ru' ? 'С' : 'From'}</label>
                 <input 
                   type="date" 
                   value={dateFrom}
@@ -166,7 +164,7 @@ export function TransactionFiltersSheet({
                 />
               </div>
               <div className="flex-1">
-                <label className="block text-xs text-muted mb-1">{language === 'ru' ? 'По' : 'To'}</label>
+                <label className="block text-xs text-muted-foreground mb-1">{language === 'ru' ? 'По' : 'To'}</label>
                 <input 
                   type="date" 
                   value={dateTo}
@@ -185,7 +183,7 @@ export function TransactionFiltersSheet({
             <select 
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="input-base"
+              className="input-base appearance-none"
             >
               <option value="all">{language === 'ru' ? 'Все категории' : 'All Categories'}</option>
               {categories.map(c => (
@@ -198,12 +196,11 @@ export function TransactionFiltersSheet({
         {/* Footer Actions */}
         <div className="p-6 border-t border-border bg-background shrink-0 flex gap-3">
           <button 
-            type="button"
             onClick={() => {
               onReset();
               onClose();
             }}
-            className="btn-secondary flex-1"
+            className="flex-1 py-3.5 px-4 bg-secondary hover:bg-secondary/80 text-foreground rounded-xl font-medium transition-colors"
           >
             {language === 'ru' ? 'Сбросить' : 'Reset'}
           </button>

@@ -161,7 +161,6 @@ export function AIReportDrawer({ isOpen, onClose, transactions }: AIReportDrawer
         {/* Sticky Top Bar */}
         <div className="sticky top-0 z-20 flex items-center p-4 md:p-6 border-b border-border bg-background/90 backdrop-blur-md shrink-0">
           <button 
-            type="button"
             ref={closeButtonRef}
             onClick={() => {
               if (report) {
@@ -170,7 +169,7 @@ export function AIReportDrawer({ isOpen, onClose, transactions }: AIReportDrawer
                 onClose();
               }
             }} 
-            className="btn-icon -ml-2 mr-2 md:hidden"
+            className="p-2 -ml-2 mr-2 text-muted-foreground hover:bg-secondary rounded-full transition-colors md:hidden"
             aria-label={language === 'ru' ? 'Назад' : 'Back'}
           >
             <ArrowLeft className="w-6 h-6" />
@@ -184,9 +183,8 @@ export function AIReportDrawer({ isOpen, onClose, transactions }: AIReportDrawer
           </div>
 
           <button 
-            type="button"
             onClick={onClose} 
-            className="btn-icon -mr-2 hidden md:inline-flex"
+            className="p-2 -mr-2 text-muted-foreground hover:bg-secondary rounded-full transition-colors hidden md:block"
             aria-label={language === 'ru' ? 'Закрыть' : 'Close'}
           >
             <X className="w-5 h-5" />
@@ -231,7 +229,7 @@ export function AIReportDrawer({ isOpen, onClose, transactions }: AIReportDrawer
                           "px-4 py-3 rounded-xl text-sm font-medium border transition-colors text-center",
                           period === opt.id 
                             ? "bg-primary/10 border-primary/30 text-primary" 
-                            : "bg-transparent border-border text-muted hover:bg-secondary"
+                            : "bg-transparent border-border text-muted-foreground hover:bg-secondary"
                         )}
                       >
                         {opt.label}
@@ -259,7 +257,7 @@ export function AIReportDrawer({ isOpen, onClose, transactions }: AIReportDrawer
                         "p-2 rounded-xl shrink-0",
                         reportType === 'tldr' ? "bg-primary/20" : "bg-secondary"
                       )}>
-                        <FileText className={cn("w-5 h-5", reportType === 'tldr' ? "text-primary" : "text-muted")} />
+                        <FileText className={cn("w-5 h-5", reportType === 'tldr' ? "text-primary" : "text-muted-foreground")} />
                       </div>
                       <div>
                         <div className="text-body font-semibold text-heading">
@@ -284,7 +282,7 @@ export function AIReportDrawer({ isOpen, onClose, transactions }: AIReportDrawer
                         "p-2 rounded-xl shrink-0",
                         reportType === 'audit' ? "bg-primary/20" : "bg-secondary"
                       )}>
-                        <Search className={cn("w-5 h-5", reportType === 'audit' ? "text-primary" : "text-muted")} />
+                        <Search className={cn("w-5 h-5", reportType === 'audit' ? "text-primary" : "text-muted-foreground")} />
                       </div>
                       <div>
                         <div className="text-body font-semibold text-heading">
@@ -309,7 +307,7 @@ export function AIReportDrawer({ isOpen, onClose, transactions }: AIReportDrawer
                         "p-2 rounded-xl shrink-0",
                         reportType === 'savings' ? "bg-primary/20" : "bg-secondary"
                       )}>
-                        <TrendingDown className={cn("w-5 h-5", reportType === 'savings' ? "text-primary" : "text-muted")} />
+                        <TrendingDown className={cn("w-5 h-5", reportType === 'savings' ? "text-primary" : "text-muted-foreground")} />
                       </div>
                       <div>
                         <div className="text-body font-semibold text-heading">
@@ -361,16 +359,15 @@ export function AIReportDrawer({ isOpen, onClose, transactions }: AIReportDrawer
                 </p>
               </div>
               <button
-                type="button"
                 onClick={() => setError(null)}
-                className="btn-secondary mt-4"
+                className="px-6 py-2.5 bg-secondary hover:bg-secondary/80 text-foreground rounded-xl font-medium transition-colors mt-4"
               >
                 {language === 'ru' ? 'Попробовать снова' : 'Try Again'}
               </button>
             </div>
           ) : report ? (
             <div className="p-4 md:p-6 flex-1">
-              <div className="markdown-body surface-primary !p-5 md:!p-8 text-[15px] md:text-base leading-relaxed break-words shadow-sm">
+              <div className="markdown-body bg-card p-5 md:p-8 rounded-3xl border border-border text-[15px] md:text-base leading-relaxed break-words shadow-sm">
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>{report}</ReactMarkdown>
               </div>
             </div>
@@ -382,9 +379,8 @@ export function AIReportDrawer({ isOpen, onClose, transactions }: AIReportDrawer
           <div className="sticky bottom-0 z-20 p-4 md:p-6 bg-background/90 backdrop-blur-md border-t border-border shrink-0">
             {!report ? (
               <button
-                type="button"
                 onClick={handleGenerate}
-                className="btn-primary w-full h-14 rounded-2xl shadow-lg shadow-primary/25 text-base"
+                className="w-full py-4 bg-primary hover:bg-primary/90 text-primary-foreground rounded-2xl font-semibold transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg shadow-primary/25"
               >
                 <Sparkles className="w-5 h-5" />
                 {language === 'ru' ? 'Сгенерировать отчет' : 'Generate Report'}
@@ -392,9 +388,8 @@ export function AIReportDrawer({ isOpen, onClose, transactions }: AIReportDrawer
             ) : (
               <div className="flex flex-col sm:flex-row gap-3">
                 <button
-                  type="button"
                   onClick={handleCopy}
-                  className="btn-secondary flex-1 h-12 flex-row rounded-2xl"
+                  className="flex-1 py-3.5 bg-secondary hover:bg-secondary/80 text-foreground rounded-2xl font-medium transition-colors flex items-center justify-center gap-2 active:scale-[0.98]"
                 >
                   {isCopied ? <Check className="w-5 h-5 text-success" /> : <Copy className="w-5 h-5" />}
                   {isCopied 
@@ -402,10 +397,9 @@ export function AIReportDrawer({ isOpen, onClose, transactions }: AIReportDrawer
                     : (language === 'ru' ? 'Скопировать' : 'Copy')}
                 </button>
                 <button
-                  type="button"
                   onClick={handleSaveReport}
                   disabled={isSaving || isSaved}
-                  className="btn-secondary flex-1 h-12 flex-row rounded-2xl"
+                  className="flex-1 py-3.5 bg-secondary hover:bg-secondary/80 text-foreground rounded-2xl font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50 active:scale-[0.98]"
                 >
                   {isSaved ? <Check className="w-5 h-5 text-success" /> : <Save className="w-5 h-5" />}
                   {isSaved 
@@ -415,9 +409,8 @@ export function AIReportDrawer({ isOpen, onClose, transactions }: AIReportDrawer
                       : (language === 'ru' ? 'В архив' : 'Save to Archive')}
                 </button>
                 <button
-                  type="button"
                   onClick={() => setReport(null)}
-                  className="btn-primary flex-1 h-12 flex-row rounded-2xl hidden md:inline-flex"
+                  className="flex-1 py-3.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-2xl font-medium transition-colors active:scale-[0.98] hidden md:flex items-center justify-center"
                 >
                   {language === 'ru' ? 'Новый отчет' : 'New Report'}
                 </button>

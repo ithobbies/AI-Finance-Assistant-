@@ -48,7 +48,7 @@ export function Onboarding() {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
-      <div className="surface-elevated w-full max-w-md !rounded-[2rem] overflow-hidden animate-in fade-in zoom-in-95 duration-300 !p-0">
+      <div className="bg-card w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-300 border border-border">
         <div className="p-8 flex flex-col items-center text-center min-h-[320px] justify-center relative">
           
           <div className="absolute top-8 flex gap-2">
@@ -81,7 +81,7 @@ export function Onboarding() {
             <>
               <button
                 onClick={() => setHasSeenOnboarding(true)}
-                className="flex-1 py-3 px-4 text-muted hover:text-foreground font-medium transition-colors"
+                className="flex-1 py-3 px-4 text-muted-foreground hover:text-foreground font-medium transition-colors"
               >
                 {language === 'ru' ? 'Пропустить' : 'Skip'}
               </button>

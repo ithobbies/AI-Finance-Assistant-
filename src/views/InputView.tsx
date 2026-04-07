@@ -135,7 +135,7 @@ export function InputView({ onSave, recentTransactions, uniqueCategories }: Inpu
   };
 
   return (
-    <div className="max-w-3xl mx-auto w-full layout-section pb-40 md:pb-8">
+    <div className="max-w-3xl mx-auto w-full flex flex-col gap-6 pb-40 md:pb-8">
       <div className="text-center mb-2">
         <h2 className="text-h1 mb-2">
           {language === 'ru' ? 'Быстрый ввод' : 'Quick Input'}
@@ -158,8 +158,8 @@ export function InputView({ onSave, recentTransactions, uniqueCategories }: Inpu
               disabled={isLoading}
               rows={5}
               className={cn(
-                "w-full surface-primary !p-5 !pl-12 resize-none",
-                "text-foreground placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-ring",
+                "w-full bg-card border border-border rounded-3xl p-5 pl-12 resize-none",
+                "text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring",
                 "transition-all duration-200 shadow-sm text-[16px] leading-relaxed", // text-[16px] prevents iOS zoom
                 isLoading && "opacity-50 cursor-not-allowed"
               )}
@@ -169,37 +169,35 @@ export function InputView({ onSave, recentTransactions, uniqueCategories }: Inpu
             {input && !isLoading && (
               <button
                 onClick={() => setInput('')}
-                className="absolute right-4 top-4 p-2 text-muted hover:text-foreground transition-colors bg-secondary rounded-full"
+                className="absolute right-4 top-4 p-2 text-muted-foreground hover:text-foreground transition-colors bg-secondary rounded-full"
               >
                 <X className="w-4 h-4" />
               </button>
             )}
           </div>
+
+          <button
+            onClick={handleParse}
+            disabled={!input.trim() || isLoading}
+            className={cn(
+              "w-full flex items-center justify-center gap-2 px-6 py-4 bg-primary hover:bg-primary/90 text-primary-foreground rounded-2xl font-medium text-lg",
+              "transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
+            )}
+          >
+            {isLoading ? (
+              <>
+                <div className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+                {language === 'ru' ? 'Анализируем...' : 'Analyzing...'}
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-5 h-5" />
+                {language === 'ru' ? 'Распознать' : 'Parse'}
+              </>
+            )}
+          </button>
           
           <QuickInputExamples onSelect={appendExample} />
-
-          <StickyActionBar>
-            <button
-              onClick={handleParse}
-              disabled={!input.trim() || isLoading}
-              className={cn(
-                "w-full flex items-center justify-center gap-2 px-6 py-4 bg-primary hover:bg-primary/90 text-primary-foreground rounded-2xl font-medium text-lg",
-                "transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
-              )}
-            >
-              {isLoading ? (
-                <>
-                  <div className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                  {language === 'ru' ? 'Анализируем...' : 'Analyzing...'}
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-5 h-5" />
-                  {language === 'ru' ? 'Распознать' : 'Parse'}
-                </>
-              )}
-            </button>
-          </StickyActionBar>
         </div>
       ) : (
         <div className="flex flex-col gap-4 animate-in fade-in">
@@ -252,7 +250,7 @@ export function InputView({ onSave, recentTransactions, uniqueCategories }: Inpu
       )}
 
       {!previewTransactions && recentTransactions.length > 0 && (
-        <div className="mt-8 px-2">
+        <div className="mt-4 px-2">
           <h3 className="text-label mb-4">
             {language === 'ru' ? 'Недавние записи' : 'Recent Entries'}
           </h3>
@@ -264,7 +262,7 @@ export function InputView({ onSave, recentTransactions, uniqueCategories }: Inpu
                   <p className="text-caption">{t.category}</p>
                 </div>
                 <div className={cn(
-                  "whitespace-nowrap text-sm",
+                  "whitespace-nowrap",
                   t.type === 'income' ? 'amount-income' : 'amount-expense'
                 )}>
                   {t.type === 'income' ? '+' : '-'}{currency}{t.amount.toLocaleString()}

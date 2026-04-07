@@ -41,7 +41,7 @@ export function MobileTransactionCard({ transaction: t, onClick }: MobileTransac
         </div>
         <div className="flex flex-col items-end shrink-0">
           <span className={cn(
-            "text-base md:text-lg font-semibold tabular-nums whitespace-nowrap",
+            "text-h3 whitespace-nowrap",
             isIncome ? 'amount-income' : 'amount-expense'
           )}>
             {isIncome ? '+' : '-'}{formatCurrency(t.amount)}
@@ -53,19 +53,19 @@ export function MobileTransactionCard({ transaction: t, onClick }: MobileTransac
       {(t.accountName || t.counterparty || (t.tags && t.tags.length > 0)) && (
         <div className="flex flex-wrap items-center gap-2 mt-3 pt-3 border-t border-border text-caption">
           {t.accountName && (
-            <div className="flex items-center gap-1 bg-secondary px-2 py-1 rounded-md">
+            <div className="flex items-center gap-1 bg-secondary border border-border/50 px-2 py-1 rounded-md">
               <Building2 className="w-3 h-3" />
               <span className="truncate max-w-[100px]">{t.accountName}</span>
             </div>
           )}
           {t.counterparty && (
-            <div className="flex items-center gap-1 bg-secondary px-2 py-1 rounded-md">
+            <div className="flex items-center gap-1 bg-secondary border border-border/50 px-2 py-1 rounded-md">
               <User className="w-3 h-3" />
               <span className="truncate max-w-[100px]">{t.counterparty}</span>
             </div>
           )}
           {t.tags && t.tags.length > 0 && (
-            <div className="flex items-center gap-1 bg-secondary px-2 py-1 rounded-md">
+            <div className="flex items-center gap-1 bg-secondary border border-border/50 px-2 py-1 rounded-md">
               <Tag className="w-3 h-3" />
               <span className="truncate max-w-[100px]">{t.tags.join(', ')}</span>
             </div>

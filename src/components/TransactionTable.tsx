@@ -55,7 +55,7 @@ export function TransactionTable({ transactions, onEdit, onDelete, onExportCSV }
             ) : (
               transactions.map((t) => (
                 <tr key={t.id} className="hover:bg-secondary/50 transition-colors">
-                  <td className="px-6 py-4 text-caption whitespace-nowrap">
+                  <td className="px-6 py-4 text-body whitespace-nowrap">
                     {formatDate(t.date)}
                   </td>
                   <td className="px-6 py-4">
@@ -70,7 +70,7 @@ export function TransactionTable({ transactions, onEdit, onDelete, onExportCSV }
                     {t.description}
                   </td>
                   <td className={cn(
-                    "px-6 py-4 text-right whitespace-nowrap text-sm md:text-base",
+                    "px-6 py-4 text-right whitespace-nowrap",
                     t.type === 'income' ? 'amount-income' : 'amount-expense'
                   )}>
                     {t.type === 'income' ? '+' : '-'}{formatCurrency(t.amount)}
@@ -79,14 +79,14 @@ export function TransactionTable({ transactions, onEdit, onDelete, onExportCSV }
                     <div className="flex items-center justify-end gap-2">
                       <button
                         onClick={() => onEdit(t.id)}
-                        className="p-2 text-muted hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
+                        className="p-2 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
                         title={language === 'ru' ? 'Редактировать' : 'Edit'}
                       >
                         <Pencil className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => onDelete(t.id)}
-                        className="p-2 text-muted hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
+                        className="p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
                         title={language === 'ru' ? 'Удалить' : 'Delete'}
                       >
                         <Trash2 className="w-4 h-4" />

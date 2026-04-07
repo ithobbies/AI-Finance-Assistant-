@@ -101,7 +101,7 @@ export function HistoryView({ transactions, onEdit, onDelete, onExportCSV }: His
 
   return (
     <div className="w-full pb-20 md:pb-0">
-      <div className="flex flex-col layout-cards mb-6 md:mb-8">
+      <div className="flex flex-col gap-4 md:gap-6 mb-6 md:mb-8">
         
         {/* Header & Mobile Actions */}
         <div className="flex items-center justify-between">
@@ -112,14 +112,14 @@ export function HistoryView({ transactions, onEdit, onDelete, onExportCSV }: His
           <div className="flex items-center gap-2">
             <button
               onClick={onExportCSV}
-              className="btn-outline md:hidden p-2 shadow-sm border-transparent bg-card"
+              className="md:hidden p-2 text-muted-foreground hover:text-foreground bg-card border border-border rounded-xl shadow-sm"
               aria-label={language === 'ru' ? 'Экспорт CSV' : 'Export CSV'}
             >
               <Download className="w-5 h-5" />
             </button>
             <button
               onClick={() => setIsFiltersSheetOpen(true)}
-              className="btn-outline md:hidden relative p-2 shadow-sm border-transparent bg-card"
+              className="md:hidden relative p-2 text-muted-foreground hover:text-foreground bg-card border border-border rounded-xl shadow-sm"
               aria-label={language === 'ru' ? 'Фильтры' : 'Filters'}
             >
               <Filter className="w-5 h-5" />
@@ -131,7 +131,7 @@ export function HistoryView({ transactions, onEdit, onDelete, onExportCSV }: His
             {hasActiveFilters && (
               <button 
                 onClick={resetFilters}
-                className="hidden md:flex items-center gap-2 text-caption text-muted hover:text-foreground transition-colors"
+                className="hidden md:flex items-center gap-2 text-caption text-muted-foreground hover:text-foreground transition-colors"
               >
                 <X className="w-4 h-4" />
                 {language === 'ru' ? 'Сбросить фильтры' : 'Reset filters'}
@@ -142,7 +142,7 @@ export function HistoryView({ transactions, onEdit, onDelete, onExportCSV }: His
 
         {/* Mobile Search Bar */}
         <div className="md:hidden relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input 
             type="text" 
             placeholder={language === 'ru' ? 'Поиск транзакций...' : 'Search transactions...'}
@@ -162,26 +162,26 @@ export function HistoryView({ transactions, onEdit, onDelete, onExportCSV }: His
               </div>
               <p className="text-h2">{summary.count}</p>
             </div>
-            <div className="p-2 md:p-4 card-primary flex flex-col items-center md:items-start text-center md:text-left">
+            <div className="p-2 md:p-4 bg-success/10 border border-success/20 rounded-2xl shadow-sm flex flex-col items-center md:items-start text-center md:text-left">
               <div className="flex items-center gap-1 md:gap-2 text-success mb-0.5 md:mb-1">
                 <TrendingUp className="w-3 h-3 md:w-4 md:h-4" />
                 <span className="text-label text-success">{language === 'ru' ? 'Доходы' : 'Income'}</span>
               </div>
-              <p className="amount-hero amount-income truncate w-full">{currency}{summary.income.toLocaleString()}</p>
+              <p className="text-h3 md:text-h2 amount-income truncate w-full">{currency}{summary.income.toLocaleString()}</p>
             </div>
-            <div className="p-2 md:p-4 card-primary flex flex-col items-center md:items-start text-center md:text-left">
+            <div className="p-2 md:p-4 bg-destructive/10 border border-destructive/20 rounded-2xl shadow-sm flex flex-col items-center md:items-start text-center md:text-left">
               <div className="flex items-center gap-1 md:gap-2 text-destructive mb-0.5 md:mb-1">
                 <TrendingDown className="w-3 h-3 md:w-4 md:h-4" />
                 <span className="text-label text-destructive">{language === 'ru' ? 'Расходы' : 'Expense'}</span>
               </div>
-              <p className="amount-hero amount-expense truncate w-full">{currency}{summary.expense.toLocaleString()}</p>
+              <p className="text-h3 md:text-h2 amount-expense text-destructive truncate w-full">{currency}{summary.expense.toLocaleString()}</p>
             </div>
-            <div className="p-2 md:p-4 card-primary flex flex-col items-center md:items-start text-center md:text-left">
+            <div className="p-2 md:p-4 bg-primary/10 border border-primary/20 rounded-2xl shadow-sm flex flex-col items-center md:items-start text-center md:text-left">
               <div className="flex items-center gap-1 md:gap-2 text-primary mb-0.5 md:mb-1">
                 <Wallet className="w-3 h-3 md:w-4 md:h-4" />
                 <span className="text-label text-primary">{language === 'ru' ? 'Итог' : 'Net'}</span>
               </div>
-              <p className="amount-hero amount-neutral text-primary truncate w-full">{summary.net > 0 ? '+' : ''}{currency}{summary.net.toLocaleString()}</p>
+              <p className="text-h3 md:text-h2 amount-neutral text-primary truncate w-full">{summary.net > 0 ? '+' : ''}{currency}{summary.net.toLocaleString()}</p>
             </div>
           </div>
         </div>
@@ -211,7 +211,7 @@ export function HistoryView({ transactions, onEdit, onDelete, onExportCSV }: His
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input 
                 type="text" 
                 placeholder={language === 'ru' ? 'Поиск...' : 'Search...'}
@@ -266,7 +266,7 @@ export function HistoryView({ transactions, onEdit, onDelete, onExportCSV }: His
       {/* Mobile Transaction List */}
       <div className="md:hidden space-y-3">
         {filteredAndSorted.length === 0 ? (
-          <div className="p-8 text-center text-muted card-primary">
+          <div className="p-8 text-center text-muted-foreground card-primary">
             {language === 'ru' ? 'Пока нет транзакций.' : 'No transactions yet.'}
           </div>
         ) : (
@@ -281,7 +281,7 @@ export function HistoryView({ transactions, onEdit, onDelete, onExportCSV }: His
             {hasMore && (
               <button
                 onClick={() => setDisplayLimit(prev => prev + 20)}
-                className="btn-secondary w-full py-3.5 mt-4"
+                className="w-full py-3.5 mt-4 bg-card border border-border text-foreground rounded-xl font-medium shadow-sm active:scale-[0.98] transition-all"
               >
                 {language === 'ru' ? 'Загрузить ещё' : 'Load more'}
               </button>
@@ -302,7 +302,7 @@ export function HistoryView({ transactions, onEdit, onDelete, onExportCSV }: His
           <div className="mt-4 flex justify-center">
             <button
               onClick={() => setDisplayLimit(prev => prev + 20)}
-              className="btn-secondary px-6 py-2.5"
+              className="px-6 py-2.5 bg-card border border-border text-foreground rounded-xl font-medium shadow-sm hover:bg-secondary transition-colors"
             >
               {language === 'ru' ? 'Загрузить ещё' : 'Load more'}
             </button>

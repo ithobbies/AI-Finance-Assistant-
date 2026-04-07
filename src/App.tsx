@@ -1,12 +1,12 @@
 import { useEffect, useState, useMemo } from 'react';
-import { Transaction, DashboardStats, DEFAULT_CATEGORIES } from './types';
-import { parseTransactions } from './services/ai';
-import { Wallet, LogIn, LogOut, Archive, Settings } from 'lucide-react';
+import { Transaction, DEFAULT_CATEGORIES } from './types';
+import { Wallet, LogIn } from 'lucide-react';
 import { auth, db, loginWithGoogle, logout } from './firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { collection, onSnapshot, query, where, addDoc, deleteDoc, doc, updateDoc, serverTimestamp, getDocFromServer } from 'firebase/firestore';
 import { SettingsProvider, useSettings } from './contexts/SettingsContext';
-import { Navigation, Tab } from './components/Navigation';
+import { AppShell } from './components/layout/AppShell';
+import { Tab } from './components/layout/MobileBottomNav';
 import { InputView } from './views/InputView';
 import { HistoryView } from './views/HistoryView';
 import { DashboardView } from './views/DashboardView';
@@ -214,7 +214,7 @@ function AppContent() {
   if (!user) {
     return (
       <div className="min-h-screen bg-background text-foreground font-sans flex items-center justify-center p-4">
-        <div className="max-w-md w-full surface-elevated text-center">
+        <div className="max-w-md w-full card-primary p-8 text-center shadow-xl">
           <div className="w-16 h-16 bg-primary/10 rounded-2xl border border-primary/20 flex items-center justify-center mx-auto mb-6">
             <Wallet className="w-8 h-8 text-primary" />
           </div>
@@ -233,84 +233,53 @@ function AppContent() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/30 pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-0">
+    <AppShell 
+      user={user} 
+      onLogout={logout} 
+      activeTab={activeTab} 
+      onTabChange={setActiveTab}
+    >
       {!hasSeenOnboarding && <Onboarding />}
       <Toaster position="top-center" richColors />
-      <div className="max-w-6xl mx-auto px-4 md:px-6 py-6 md:py-12">
-        <header className="flex flex-row items-center justify-between gap-4 mb-8 md:mb-12">
-          <div className="flex items-center gap-2 md:gap-3">
-            <div className="p-2 md:p-3 bg-primary/10 rounded-xl md:rounded-2xl border border-primary/20">
-              <Wallet className="w-6 h-6 md:w-8 md:h-8 text-primary" />
-            </div>
-            <div>
-              <h1 className="text-h1">Finance 2026</h1>
-              <p className="text-caption hidden md:block">
-                {language === 'ru' ? 'Умный учет личных и бизнес финансов' : 'Smart personal & business tracking'}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 md:gap-4">
-            <div className="flex items-center gap-2">
-              {user.photoURL && (
-                <img src={user.photoURL} alt="Avatar" className="w-8 h-8 rounded-full border border-border" referrerPolicy="no-referrer" />
-              )}
-              <span className="text-sm font-medium text-foreground hidden md:inline-block">{user.displayName}</span>
-            </div>
-            <button
-              onClick={logout}
-              className="p-2 text-muted hover:text-foreground hover:bg-secondary rounded-xl transition-colors"
-              title={language === 'ru' ? 'Выйти' : 'Sign out'}
-            >
-              <LogOut className="w-5 h-5" />
-            </button>
-          </div>
-        </header>
-
-        <div className="flex flex-col md:flex-row gap-8">
-          <Navigation activeTab={activeTab} onChange={setActiveTab} />
-          
-          <main className="flex-1 min-w-0">
-            {error && (
-              <div className="mb-8 p-4 bg-destructive/10 border border-destructive/20 rounded-2xl text-destructive text-sm">
-                {error}
-              </div>
-            )}
-
-            {activeTab === 'input' && (
-              <InputView 
-                onSave={handleSave} 
-                recentTransactions={transactions.slice(0, 5)} 
-                uniqueCategories={uniqueCategories}
-              />
-            )}
-            
-            {activeTab === 'history' && (
-              <HistoryView 
-                transactions={transactions} 
-                onEdit={handleEdit} 
-                onDelete={handleDelete} 
-                onExportCSV={handleExportCSV} 
-              />
-            )}
-            
-            {activeTab === 'dashboard' && (
-              <DashboardView 
-                transactions={transactions} 
-                onNavigate={setActiveTab}
-              />
-            )}
-            
-            {activeTab === 'archive' && (
-              <ReportsArchiveView />
-            )}
-            
-            {activeTab === 'settings' && (
-              <SettingsView transactions={transactions} />
-            )}
-          </main>
-        </div>
-      </div>
       
+      {error && (
+        <div className="mb-8 p-4 bg-destructive/10 border border-destructive/20 rounded-2xl text-destructive text-sm">
+          {error}
+        </div>
+      )}
+
+      {activeTab === 'input' && (
+        <InputView 
+          onSave={handleSave} 
+          recentTransactions={transactions.slice(0, 5)} 
+          uniqueCategories={uniqueCategories}
+        />
+      )}
+      
+      {activeTab === 'history' && (
+        <HistoryView 
+          transactions={transactions} 
+          onEdit={handleEdit} 
+          onDelete={handleDelete} 
+          onExportCSV={handleExportCSV} 
+        />
+      )}
+      
+      {activeTab === 'dashboard' && (
+        <DashboardView 
+          transactions={transactions} 
+          onNavigate={setActiveTab}
+        />
+      )}
+      
+      {activeTab === 'archive' && (
+        <ReportsArchiveView />
+      )}
+      
+      {activeTab === 'settings' && (
+        <SettingsView transactions={transactions} />
+      )}
+
       <EditModal 
         transaction={editingTransaction} 
         isOpen={!!editingTransaction} 
@@ -318,7 +287,7 @@ function AppContent() {
         onSave={handleSaveEdit} 
         categories={uniqueCategories}
       />
-    </div>
+    </AppShell>
   );
 }
 

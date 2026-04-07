@@ -107,7 +107,7 @@ export function ParsedTransactionCard({ transaction: t, index, onUpdate, onRemov
 
         <div className="sm:col-span-2 flex flex-col sm:flex-row gap-3">
           <div className="flex-1 relative">
-            <Wallet className="absolute left-3 top-3 w-4 h-4 text-muted" />
+            <Wallet className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
             <input
               type="text"
               value={t.accountName || ''}
@@ -117,7 +117,7 @@ export function ParsedTransactionCard({ transaction: t, index, onUpdate, onRemov
             />
           </div>
           <div className="flex-1 relative">
-            <Users className="absolute left-3 top-3 w-4 h-4 text-muted" />
+            <Users className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
             <input
               type="text"
               value={t.counterparty || ''}
@@ -130,7 +130,7 @@ export function ParsedTransactionCard({ transaction: t, index, onUpdate, onRemov
         
         {t.tags && t.tags.length > 0 && (
           <div className="sm:col-span-2 flex flex-wrap gap-1.5 items-center mt-1">
-            <Tag className="w-3.5 h-3.5 text-muted" />
+            <Tag className="w-3.5 h-3.5 text-muted-foreground" />
             {t.tags.map((tag, idx) => (
               <span key={idx} className="px-2 py-1 bg-secondary text-caption rounded-lg border border-border">
                 {tag}

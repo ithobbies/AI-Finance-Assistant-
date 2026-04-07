@@ -85,7 +85,7 @@ export function SettingsView({ transactions }: SettingsViewProps) {
   };
 
   return (
-    <div className="max-w-2xl mx-auto w-full layout-section">
+    <div className="max-w-2xl mx-auto w-full space-y-8">
       <div>
         <h2 className="text-h1 flex items-center gap-2">
           <Settings className="w-6 h-6" />
@@ -264,7 +264,7 @@ export function SettingsView({ transactions }: SettingsViewProps) {
                   </div>
                 </div>
                 <button
-                  className="btn-destructive px-4 py-2 text-sm"
+                  className="btn-danger px-4 py-2 text-sm"
                   onClick={handleDeleteAccount}
                   disabled={isDeleting}
                 >

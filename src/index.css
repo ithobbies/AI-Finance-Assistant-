@@ -2,8 +2,6 @@
 @variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
-
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -96,104 +94,73 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground antialiased transition-colors duration-200 font-sans;
+    @apply bg-background text-foreground antialiased transition-colors duration-200;
   }
 }
 
 @layer components {
-  /* ─── Surface System ─── */
-  
-  /* Primary Surface: Main dashboard blocks, charts, big standalone cards */
-  .surface-primary,
+  /* Cards */
   .card-primary {
-    @apply bg-card text-card-foreground border border-border/60 rounded-[1.5rem] shadow-[0_1px_3px_0_rgb(0_0_0/0.04)] dark:shadow-[0_1px_3px_0_rgb(255_255_255/0.02)] p-5 md:p-6 transition-all;
+    @apply bg-card text-card-foreground border border-border rounded-[1.5rem] shadow-sm transition-all hover:shadow-md;
   }
-  
-  /* Secondary Surface: Nested blocks, summary bar items, secondary info */
-  .surface-secondary,
   .card-secondary {
-    @apply bg-secondary text-secondary-foreground border border-transparent rounded-[1.25rem] p-4 md:p-5 transition-all;
-  }
-  
-  /* Elevated Surface: Modals, drawers, floating action menus */
-  .surface-elevated {
-    @apply bg-popover text-popover-foreground border border-border/80 rounded-[1.5rem] shadow-xl shadow-black/5 dark:shadow-white/5 p-6 md:p-8 transition-all;
-  }
-
-  /* ─── Layout Rhythm ─── */
-  .layout-section {
-    @apply flex flex-col gap-6 md:gap-8;
-  }
-  
-  .layout-grid,
-  .layout-cards {
-    @apply grid gap-4 md:gap-6;
+    @apply bg-secondary text-secondary-foreground rounded-[1.5rem] border border-transparent;
   }
   
   /* Buttons */
   .btn-base {
-    @apply inline-flex items-center justify-center gap-2 font-medium h-11 px-5 transition-all active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+    @apply inline-flex items-center justify-center gap-2 font-medium transition-all active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none rounded-xl;
   }
   .btn-primary {
-    @apply btn-base bg-primary text-primary-foreground shadow-sm hover:shadow-md hover:bg-primary/95;
+    @apply inline-flex items-center justify-center gap-2 font-medium transition-all active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none rounded-xl bg-primary text-primary-foreground hover:opacity-90 shadow-sm;
   }
   .btn-secondary {
-    @apply btn-base bg-secondary text-secondary-foreground hover:bg-secondary/80;
+    @apply inline-flex items-center justify-center gap-2 font-medium transition-all active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none rounded-xl bg-secondary text-secondary-foreground hover:bg-secondary/80;
   }
   .btn-outline {
-    @apply btn-base border border-border bg-transparent hover:bg-secondary/50 text-foreground;
+    @apply inline-flex items-center justify-center gap-2 font-medium transition-all active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none rounded-xl border border-border bg-transparent hover:bg-secondary text-foreground;
   }
   .btn-ghost {
-    @apply btn-base hover:bg-secondary/60 text-foreground;
+    @apply inline-flex items-center justify-center gap-2 font-medium transition-all active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none rounded-xl hover:bg-secondary text-foreground;
   }
   .btn-danger {
-    @apply btn-base bg-destructive/90 text-destructive-foreground shadow-sm hover:shadow-md hover:bg-destructive focus-visible:ring-destructive;
-  }
-  .btn-icon {
-    @apply inline-flex items-center justify-center shrink-0 w-11 h-11 transition-all active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background hover:bg-secondary/60 text-foreground;
+    @apply inline-flex items-center justify-center gap-2 font-medium transition-all active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none rounded-xl bg-destructive text-destructive-foreground hover:opacity-90 shadow-sm;
   }
   
   /* Inputs */
   .input-base {
-    @apply flex w-full min-h-[44px] rounded-xl border border-input/60 bg-background/50 px-4 py-3 text-[16px] md:text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:border-ring hover:border-border disabled:cursor-not-allowed disabled:opacity-50 transition-all;
-  }
-  .input-error {
-    @apply border-destructive/60 hover:border-destructive focus-visible:ring-destructive/50 focus-visible:border-destructive;
+    @apply flex w-full rounded-xl border border-input bg-background px-4 py-3 text-[16px] md:text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-shadow;
   }
   
   /* Badges / Chips */
   .badge-base {
-    @apply inline-flex items-center rounded-xl border px-3 py-1 text-xs font-bold tracking-wide transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:scale-95;
+    @apply inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
   }
   .badge-primary {
-    @apply badge-base border-transparent bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-sm;
+    @apply inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-primary text-primary-foreground hover:opacity-80;
   }
   .badge-secondary {
-    @apply badge-base border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80;
+    @apply inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80;
   }
   .badge-outline {
-    @apply badge-base border-border bg-transparent hover:bg-secondary/50 text-foreground;
+    @apply inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-foreground;
   }
   .badge-success {
-    @apply badge-base border-transparent bg-success/10 text-success dark:bg-success/20 hover:bg-success/20 dark:hover:bg-success/30;
+    @apply inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-success/10 text-success dark:bg-success/20;
   }
   .badge-warning {
-    @apply badge-base border-transparent bg-warning/10 text-warning dark:bg-warning/20 hover:bg-warning/20 dark:hover:bg-warning/30;
+    @apply inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-warning/10 text-warning dark:bg-warning/20;
   }
   .badge-danger {
-    @apply badge-base border-transparent bg-destructive/10 text-destructive dark:bg-destructive/20 hover:bg-destructive/20 dark:hover:bg-destructive/30;
+    @apply inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-destructive/10 text-destructive dark:bg-destructive/20;
   }
   
-  /* ─── Typography System ─── */
-
-  /* Display — hero balance number on main card */
+  /* Typography System */
   .text-display {
-    @apply text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tighter text-foreground tabular-nums leading-none;
+    @apply text-4xl md:text-5xl lg:text-6xl font-light tracking-tighter text-foreground tabular-nums;
   }
-
-  /* Headings */
   .text-h1 {
-    @apply text-2xl md:text-3xl font-semibold tracking-tight text-foreground leading-tight;
+    @apply text-2xl md:text-3xl font-semibold tracking-tight text-foreground;
   }
   .text-h2 {
     @apply text-lg md:text-xl font-semibold tracking-tight text-foreground;
@@ -201,13 +168,6 @@
   .text-h3 {
     @apply text-base md:text-lg font-medium tracking-tight text-foreground;
   }
-
-  /* Section title — chart headers, form group labels */
-  .text-section-title {
-    @apply text-sm font-semibold uppercase tracking-wider text-muted-foreground;
-  }
-
-  /* Body / Caption / Label */
   .text-body {
     @apply text-sm md:text-base leading-relaxed text-foreground/90;
   }
@@ -215,121 +175,84 @@
     @apply text-xs md:text-sm text-muted-foreground;
   }
   .text-label {
-    @apply text-[11px] md:text-xs font-semibold uppercase tracking-wider text-muted-foreground;
+    @apply text-[10px] md:text-xs font-semibold uppercase tracking-wider text-muted-foreground;
   }
   
-  /* ─── Financial Amounts ─── */
-
-  /* Hero amount — summary-card big numbers (income/expense/net cards) */
-  .amount-hero {
-    @apply text-2xl md:text-3xl font-bold tabular-nums tracking-tight leading-none;
-  }
-
-  /* Inline amounts */
+  /* Financial Amounts */
   .amount-income {
     @apply tabular-nums text-success font-semibold tracking-tight;
   }
   .amount-expense {
-    @apply tabular-nums text-destructive font-medium tracking-tight;
+    @apply tabular-nums text-foreground font-medium tracking-tight;
   }
   .amount-neutral {
     @apply tabular-nums text-foreground font-semibold tracking-tight;
   }
-
-  /* ─── Markdown Body (AI Reports) ─── */
-
-  .markdown-body {
-    @apply text-sm md:text-base leading-relaxed text-foreground/90;
-  }
-
-  .markdown-body h1, .markdown-body h2 {
-    @apply text-lg md:text-xl font-semibold tracking-tight text-foreground mt-8 mb-4 flex items-center gap-2;
-  }
-
-  .markdown-body h3 {
-    @apply text-base md:text-lg font-medium tracking-tight text-foreground mt-6 mb-3 flex items-center gap-2;
-  }
-
-  .markdown-body p {
-    @apply mb-4 text-foreground/80 leading-relaxed;
-  }
-
-  .markdown-body ul {
-    @apply list-none pl-0 mb-6 space-y-3 text-foreground/80;
-  }
-
-  .markdown-body ol {
-    @apply list-decimal pl-5 mb-6 space-y-3 text-foreground/80;
-  }
-
-  .markdown-body li {
-    @apply mb-1 leading-relaxed;
-  }
-
-  .markdown-body ul li {
-    @apply relative pl-6;
-  }
-
-  .markdown-body ul li::before {
-    content: "•";
-    @apply absolute left-2 text-primary font-bold;
-  }
-
-  .markdown-body strong {
-    @apply font-semibold text-foreground;
-  }
-
-  /* Markdown tables — financial data */
-  .markdown-body table {
-    @apply w-full text-left border-collapse mb-8 bg-card rounded-xl overflow-hidden shadow-sm border border-border;
-  }
-
-  .markdown-body th {
-    @apply border-b border-border py-3 px-4 font-semibold text-foreground bg-secondary text-sm tracking-wide;
-  }
-
-  .markdown-body td {
-    @apply border-b border-border py-3 px-4 text-foreground/80 text-sm tabular-nums;
-  }
-
-  .markdown-body tr:last-child td {
-    @apply border-b-0;
-  }
-
-  .markdown-body hr {
-    @apply my-8 border-border;
-  }
-
-  .markdown-body em {
-    @apply text-muted-foreground italic text-sm;
-  }
-
-  /* Blockquotes — tips / advice blocks */
-  .markdown-body blockquote {
-    @apply border-l-4 border-primary/40 bg-primary/5 rounded-r-xl px-5 py-4 my-6 text-foreground/80 leading-relaxed;
-  }
-
-  .markdown-body blockquote p {
-    @apply mb-0;
-  }
-
-  /* Inline code */
-  .markdown-body code {
-    @apply bg-secondary text-foreground/90 px-1.5 py-0.5 rounded-md text-[0.85em] font-medium;
-  }
-
-  /* Code blocks */
-  .markdown-body pre {
-    @apply bg-secondary rounded-xl p-4 mb-6 overflow-x-auto border border-border;
-  }
-
-  .markdown-body pre code {
-    @apply bg-transparent p-0 text-sm;
-  }
 }
 
-@layer utilities {
-  .text-muted {
-    color: var(--color-muted-foreground) !important;
-  }
+
+
+.markdown-body {
+  @apply text-sm md:text-base leading-relaxed text-foreground/90;
+}
+
+.markdown-body h1, .markdown-body h2 {
+  @apply text-lg md:text-xl font-semibold tracking-tight text-foreground mt-8 mb-4 flex items-center gap-2;
+}
+
+.markdown-body h3 {
+  @apply text-base md:text-lg font-medium tracking-tight text-foreground mt-6 mb-3 flex items-center gap-2;
+}
+
+.markdown-body p {
+  @apply mb-4 text-foreground/80;
+}
+
+.markdown-body ul {
+  @apply list-none pl-0 mb-6 space-y-3 text-foreground/80;
+}
+
+.markdown-body ol {
+  @apply list-decimal pl-5 mb-6 space-y-3 text-foreground/80;
+}
+
+.markdown-body li {
+  @apply mb-1;
+}
+
+.markdown-body ul li {
+  @apply relative pl-6;
+}
+
+.markdown-body ul li::before {
+  content: "•";
+  @apply absolute left-2 text-primary font-bold;
+}
+
+.markdown-body strong {
+  @apply font-semibold text-foreground;
+}
+
+.markdown-body table {
+  @apply w-full text-left border-collapse mb-8 bg-card rounded-xl overflow-hidden shadow-sm border border-border;
+}
+
+.markdown-body th {
+  @apply border-b border-border py-3 px-4 font-semibold text-foreground bg-secondary text-sm;
+}
+
+.markdown-body td {
+  @apply border-b border-border py-3 px-4 text-foreground/80 text-sm;
+}
+
+.markdown-body tr:last-child td {
+  @apply border-b-0;
+}
+
+.markdown-body hr {
+  @apply my-8 border-border;
+}
+
+.markdown-body em {
+  @apply text-muted-foreground italic text-sm;
 }

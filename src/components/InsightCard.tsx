@@ -13,12 +13,12 @@ export function InsightCard({ insight }: InsightCardProps) {
   return (
     <div 
       className={cn(
-        "p-5 md:p-6 rounded-[1.5rem] border flex items-start gap-4 shadow-[0_1px_3px_0_rgb(0_0_0/0.04)] dark:shadow-[0_1px_3px_0_rgb(255_255_255/0.02)] transition-all hover:shadow-md",
+        "p-5 rounded-[1.5rem] border flex items-start gap-4 transition-all hover:shadow-md",
         insight.type === 'warning' 
-          ? "bg-destructive/10 border-destructive/20 text-destructive"
+          ? "bg-fuchsia-500/10 border-fuchsia-500/30 text-fuchsia-700 dark:text-fuchsia-400 dark:shadow-[0_0_15px_rgba(217,70,239,0.15)]"
           : insight.type === 'success'
-            ? "bg-success/10 border-success/20 text-success"
-            : "bg-primary/10 border-primary/20 text-primary"
+            ? "bg-lime-500/10 border-lime-500/30 text-lime-700 dark:text-lime-400 dark:shadow-[0_0_15px_rgba(163,230,53,0.15)]"
+            : "bg-cyan-500/10 border-cyan-500/30 text-cyan-700 dark:text-cyan-400 dark:shadow-[0_0_15px_rgba(34,211,238,0.15)]"
       )}
     >
       <div className="shrink-0 mt-0.5">
