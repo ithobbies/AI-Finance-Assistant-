@@ -56,7 +56,7 @@ export interface Transaction {
 }
 
 export type RegularPaymentKind = 'subscription' | 'banking';
-export type ScheduleType = 'monthly' | 'yearly' | 'one-time' | 'custom';
+export type ScheduleType = 'monthly' | 'yearly' | 'one-time' | 'custom' | 'trial';
 
 export interface RegularPayment {
   id: string;
@@ -79,10 +79,33 @@ export interface RegularPayment {
   totalInstallments?: number;
   lender?: string;
   
+  // Trial specific
+  trialEndDate?: string;
+  postTrialScheduleType?: 'monthly' | 'yearly' | 'custom';
+  
+  // Extra metadata
+  paymentMethod?: string;
+  listName?: string;
+  reminders?: boolean;
   notes?: string;
   status: 'active' | 'paused' | 'completed';
   createdAt: any; // Timestamp
   updatedAt?: any; // Timestamp
+}
+
+export interface PaymentOccurrence {
+  id: string;
+  userId: string;
+  paymentId: string;
+  dueDate: string; // YYYY-MM-DD
+  occurrenceKey: string; // paymentId_YYYY-MM-DD
+  status: 'paid' | 'skipped';
+  paidAt?: string; // YYYY-MM-DD
+  paidAmount?: number;
+  transactionId?: string;
+  installmentNumber?: number;
+  createdAt: any;
+  updatedAt?: any;
 }
 
 export interface DashboardStats {

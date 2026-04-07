@@ -52,6 +52,7 @@ function AppContent() {
   const [isAuthReady, setIsAuthReady] = useState(false);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [regularPayments, setRegularPayments] = useState<RegularPayment[]>([]);
+  const [paymentOccurrences, setPaymentOccurrences] = useState<PaymentOccurrence[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<Tab>('input');
@@ -120,6 +121,27 @@ function AppContent() {
       setRegularPayments(payments);
     }, (error) => {
       handleFirestoreError(error, OperationType.LIST, 'regularPayments');
+    });
+
+    return () => unsubscribe();
+  }, [user, isAuthReady]);
+
+  // Fetch payment occurrences from Firestore
+  useEffect(() => {
+    if (!isAuthReady || !user) {
+      setPaymentOccurrences([]);
+      return;
+    }
+
+    const q = query(collection(db, 'paymentOccurrences'), where('userId', '==', user.uid));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const occs: PaymentOccurrence[] = [];
+      snapshot.forEach((doc) => {
+        occs.push({ id: doc.id, ...doc.data() } as PaymentOccurrence);
+      });
+      setPaymentOccurrences(occs);
+    }, (error) => {
+      handleFirestoreError(error, OperationType.LIST, 'paymentOccurrences');
     });
 
     return () => unsubscribe();
@@ -299,6 +321,7 @@ function AppContent() {
         <CalendarView 
           transactions={transactions}
           regularPayments={regularPayments}
+          paymentOccurrences={paymentOccurrences}
         />
       )}
       

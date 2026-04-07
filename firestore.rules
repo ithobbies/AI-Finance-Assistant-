@@ -89,13 +89,13 @@ service cloud.firestore {
     function isValidRegularPayment() {
       let data = request.resource.data;
       return hasRequiredFields(['userId', 'kind', 'title', 'amount', 'currency', 'scheduleType', 'startDate', 'category', 'status', 'createdAt']) &&
-             hasOnlyAllowedFields(['userId', 'kind', 'title', 'amount', 'currency', 'scheduleType', 'intervalUnit', 'intervalCount', 'startDate', 'endDate', 'category', 'iconKey', 'color', 'subtype', 'totalInstallments', 'lender', 'notes', 'status', 'createdAt', 'updatedAt']) &&
+             hasOnlyAllowedFields(['userId', 'kind', 'title', 'amount', 'currency', 'scheduleType', 'intervalUnit', 'intervalCount', 'startDate', 'endDate', 'category', 'iconKey', 'color', 'subtype', 'totalInstallments', 'lender', 'notes', 'status', 'createdAt', 'updatedAt', 'trialEndDate', 'postTrialScheduleType', 'paymentMethod', 'listName', 'reminders']) &&
              data.userId is string && data.userId.size() > 0 && data.userId.size() < 100 &&
              data.kind in ['subscription', 'banking'] &&
              data.title is string && data.title.size() > 0 && data.title.size() <= 200 &&
              data.amount is number && data.amount >= 0 &&
              data.currency is string && data.currency.size() <= 10 &&
-             data.scheduleType in ['monthly', 'yearly', 'one-time', 'custom'] &&
+             data.scheduleType in ['monthly', 'yearly', 'one-time', 'custom', 'trial'] &&
              (!('intervalUnit' in data) || (data.intervalUnit in ['day', 'week', 'month', 'year'])) &&
              (!('intervalCount' in data) || (data.intervalCount is number && data.intervalCount > 0)) &&
              data.startDate is string && data.startDate.size() == 10 &&
@@ -107,7 +107,29 @@ service cloud.firestore {
              (!('totalInstallments' in data) || (data.totalInstallments is number && data.totalInstallments > 0)) &&
              (!('lender' in data) || (data.lender is string && data.lender.size() <= 100)) &&
              (!('notes' in data) || (data.notes is string && data.notes.size() <= 1000)) &&
+             (!('trialEndDate' in data) || (data.trialEndDate is string && data.trialEndDate.size() == 10)) &&
+             (!('postTrialScheduleType' in data) || (data.postTrialScheduleType in ['monthly', 'yearly', 'custom'])) &&
+             (!('paymentMethod' in data) || (data.paymentMethod is string && data.paymentMethod.size() <= 100)) &&
+             (!('listName' in data) || (data.listName is string && data.listName.size() <= 100)) &&
+             (!('reminders' in data) || data.reminders is bool) &&
              data.status in ['active', 'paused', 'completed'] &&
+             data.createdAt is timestamp &&
+             (!('updatedAt' in data) || data.updatedAt is timestamp);
+    }
+
+    function isValidPaymentOccurrence() {
+      let data = request.resource.data;
+      return hasRequiredFields(['userId', 'paymentId', 'dueDate', 'occurrenceKey', 'status', 'createdAt']) &&
+             hasOnlyAllowedFields(['userId', 'paymentId', 'dueDate', 'occurrenceKey', 'status', 'paidAt', 'paidAmount', 'transactionId', 'installmentNumber', 'createdAt', 'updatedAt']) &&
+             data.userId is string && data.userId.size() > 0 && data.userId.size() < 100 &&
+             data.paymentId is string && data.paymentId.size() > 0 &&
+             data.dueDate is string && data.dueDate.size() == 10 &&
+             data.occurrenceKey is string && data.occurrenceKey.size() > 0 &&
+             data.status in ['paid', 'skipped'] &&
+             (!('paidAt' in data) || (data.paidAt is string && data.paidAt.size() == 10)) &&
+             (!('paidAmount' in data) || data.paidAmount is number) &&
+             (!('transactionId' in data) || data.transactionId is string) &&
+             (!('installmentNumber' in data) || data.installmentNumber is number) &&
              data.createdAt is timestamp &&
              (!('updatedAt' in data) || data.updatedAt is timestamp);
     }
@@ -165,6 +187,13 @@ service cloud.firestore {
                     createdAtNotModified();
                     
       // Delete: Only the owner can delete
+      allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+
+    match /paymentOccurrences/{occurrenceId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid && isValidPaymentOccurrence() && uidUnchanged();
+      allow update: if isAuthenticated() && resource.data.userId == request.auth.uid && isValidPaymentOccurrence() && uidNotModified() && createdAtNotModified();
       allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
     }
 
