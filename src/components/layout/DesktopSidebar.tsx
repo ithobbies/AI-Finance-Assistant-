@@ -1,5 +1,5 @@
 import React from 'react';
-import { PlusCircle, ListOrdered, LayoutDashboard, Settings, Archive, Wallet, LogOut } from 'lucide-react';
+import { PlusCircle, ListOrdered, LayoutDashboard, Settings, Archive, Wallet, LogOut, CalendarDays } from 'lucide-react';
 import { useSettings } from '../../contexts/SettingsContext';
 import { User } from 'firebase/auth';
 import { Tab } from './MobileBottomNav';
@@ -17,6 +17,7 @@ export function DesktopSidebar({ activeTab, onChange, user, onLogout }: DesktopS
   const tabs = [
     { id: 'dashboard', label: language === 'ru' ? 'Главная' : 'Dashboard', icon: LayoutDashboard },
     { id: 'history', label: language === 'ru' ? 'История' : 'History', icon: ListOrdered },
+    { id: 'calendar', label: language === 'ru' ? 'Календарь' : 'Calendar', icon: CalendarDays },
     { id: 'input', label: language === 'ru' ? 'Добавить' : 'Add', icon: PlusCircle },
     { id: 'archive', label: language === 'ru' ? 'AI' : 'AI', icon: Archive },
     { id: 'settings', label: language === 'ru' ? 'Настройки' : 'Settings', icon: Settings },

@@ -65,7 +65,7 @@ service cloud.firestore {
     function isValidTransaction() {
       let data = request.resource.data;
       return hasRequiredFields(['userId', 'date', 'amount', 'description', 'category', 'type', 'createdAt']) &&
-             hasOnlyAllowedFields(['userId', 'date', 'amount', 'description', 'category', 'type', 'createdAt', 'kind', 'scope', 'accountId', 'accountName', 'counterparty', 'source', 'aiConfidence', 'tags', 'fingerprint']) &&
+             hasOnlyAllowedFields(['userId', 'date', 'amount', 'description', 'category', 'type', 'createdAt', 'kind', 'scope', 'accountId', 'accountName', 'counterparty', 'source', 'aiConfidence', 'tags', 'fingerprint', 'regularPaymentId', 'regularPaymentDueDate']) &&
              data.userId is string && data.userId.size() > 0 && data.userId.size() < 100 &&
              data.date is string && data.date.size() == 10 &&
              data.amount is number && data.amount >= 0 &&
@@ -81,7 +81,35 @@ service cloud.firestore {
              (!('aiConfidence' in data) || (data.aiConfidence is number && data.aiConfidence >= 0 && data.aiConfidence <= 1)) &&
              (!('tags' in data) || (data.tags is list && data.tags.size() <= 20)) &&
              (!('fingerprint' in data) || (data.fingerprint is string && data.fingerprint.size() <= 1000)) &&
+             (!('regularPaymentId' in data) || (data.regularPaymentId is string && data.regularPaymentId.size() <= 100)) &&
+             (!('regularPaymentDueDate' in data) || (data.regularPaymentDueDate is string && data.regularPaymentDueDate.size() == 10)) &&
              data.createdAt is timestamp;
+    }
+
+    function isValidRegularPayment() {
+      let data = request.resource.data;
+      return hasRequiredFields(['userId', 'kind', 'title', 'amount', 'currency', 'scheduleType', 'startDate', 'category', 'status', 'createdAt']) &&
+             hasOnlyAllowedFields(['userId', 'kind', 'title', 'amount', 'currency', 'scheduleType', 'intervalUnit', 'intervalCount', 'startDate', 'endDate', 'category', 'iconKey', 'color', 'subtype', 'totalInstallments', 'lender', 'notes', 'status', 'createdAt', 'updatedAt']) &&
+             data.userId is string && data.userId.size() > 0 && data.userId.size() < 100 &&
+             data.kind in ['subscription', 'banking'] &&
+             data.title is string && data.title.size() > 0 && data.title.size() <= 200 &&
+             data.amount is number && data.amount >= 0 &&
+             data.currency is string && data.currency.size() <= 10 &&
+             data.scheduleType in ['monthly', 'yearly', 'one-time', 'custom'] &&
+             (!('intervalUnit' in data) || (data.intervalUnit in ['day', 'week', 'month', 'year'])) &&
+             (!('intervalCount' in data) || (data.intervalCount is number && data.intervalCount > 0)) &&
+             data.startDate is string && data.startDate.size() == 10 &&
+             (!('endDate' in data) || (data.endDate is string && data.endDate.size() == 10)) &&
+             data.category is string && data.category.size() <= 100 &&
+             (!('iconKey' in data) || (data.iconKey is string && data.iconKey.size() <= 50)) &&
+             (!('color' in data) || (data.color is string && data.color.size() <= 50)) &&
+             (!('subtype' in data) || (data.subtype is string && data.subtype.size() <= 50)) &&
+             (!('totalInstallments' in data) || (data.totalInstallments is number && data.totalInstallments > 0)) &&
+             (!('lender' in data) || (data.lender is string && data.lender.size() <= 100)) &&
+             (!('notes' in data) || (data.notes is string && data.notes.size() <= 1000)) &&
+             data.status in ['active', 'paused', 'completed'] &&
+             data.createdAt is timestamp &&
+             (!('updatedAt' in data) || data.updatedAt is timestamp);
     }
 
     function isValidAIReport() {
@@ -112,6 +140,27 @@ service cloud.firestore {
       allow update: if isAuthenticated() && 
                     resource.data.userId == request.auth.uid && 
                     isValidTransaction() && 
+                    uidNotModified() && 
+                    createdAtNotModified();
+                    
+      // Delete: Only the owner can delete
+      allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+
+    match /regularPayments/{paymentId} {
+      // Read: Only the owner can read their regular payments
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      
+      // Create: Must be authenticated, set themselves as owner, and data must be valid
+      allow create: if isAuthenticated() && 
+                    request.resource.data.userId == request.auth.uid && 
+                    isValidRegularPayment() && 
+                    uidUnchanged();
+                    
+      // Update: Must be owner, data must be valid, cannot change owner or creation time
+      allow update: if isAuthenticated() && 
+                    resource.data.userId == request.auth.uid && 
+                    isValidRegularPayment() && 
                     uidNotModified() && 
                     createdAtNotModified();
                     

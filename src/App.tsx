@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
-import { Transaction, DEFAULT_CATEGORIES } from './types';
+import { Transaction, RegularPayment, DEFAULT_CATEGORIES } from './types';
 import { Wallet, LogIn } from 'lucide-react';
 import { auth, db, loginWithGoogle, logout } from './firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
@@ -12,6 +12,7 @@ import { HistoryView } from './views/HistoryView';
 import { DashboardView } from './views/DashboardView';
 import { SettingsView } from './views/SettingsView';
 import { ReportsArchiveView } from './views/ReportsArchiveView';
+import { CalendarView } from './views/CalendarView';
 import { EditModal } from './components/EditModal';
 import { Toaster, toast } from 'sonner';
 import { Onboarding } from './components/Onboarding';
@@ -50,6 +51,7 @@ function AppContent() {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthReady, setIsAuthReady] = useState(false);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [regularPayments, setRegularPayments] = useState<RegularPayment[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<Tab>('input');
@@ -97,6 +99,27 @@ function AppContent() {
       setTransactions(txs);
     }, (error) => {
       handleFirestoreError(error, OperationType.LIST, 'transactions');
+    });
+
+    return () => unsubscribe();
+  }, [user, isAuthReady]);
+
+  // Fetch regular payments from Firestore
+  useEffect(() => {
+    if (!isAuthReady || !user) {
+      setRegularPayments([]);
+      return;
+    }
+
+    const q = query(collection(db, 'regularPayments'), where('userId', '==', user.uid));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const payments: RegularPayment[] = [];
+      snapshot.forEach((doc) => {
+        payments.push({ id: doc.id, ...doc.data() } as RegularPayment);
+      });
+      setRegularPayments(payments);
+    }, (error) => {
+      handleFirestoreError(error, OperationType.LIST, 'regularPayments');
     });
 
     return () => unsubscribe();
@@ -269,6 +292,13 @@ function AppContent() {
         <DashboardView 
           transactions={transactions} 
           onNavigate={setActiveTab}
+        />
+      )}
+      
+      {activeTab === 'calendar' && (
+        <CalendarView 
+          transactions={transactions}
+          regularPayments={regularPayments}
         />
       )}
       

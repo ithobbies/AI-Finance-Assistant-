@@ -1,8 +1,8 @@
 import React from 'react';
-import { PlusCircle, ListOrdered, LayoutDashboard, Settings, Archive } from 'lucide-react';
+import { PlusCircle, ListOrdered, LayoutDashboard, Settings, Archive, CalendarDays } from 'lucide-react';
 import { useSettings } from '../../contexts/SettingsContext';
 
-export type Tab = 'input' | 'history' | 'dashboard' | 'archive' | 'settings';
+export type Tab = 'input' | 'history' | 'dashboard' | 'archive' | 'settings' | 'calendar';
 
 interface MobileBottomNavProps {
   activeTab: Tab;
@@ -16,6 +16,7 @@ export function MobileBottomNav({ activeTab, onChange }: MobileBottomNavProps) {
     { id: 'dashboard', label: language === 'ru' ? 'Главная' : 'Dashboard', icon: LayoutDashboard },
     { id: 'history', label: language === 'ru' ? 'История' : 'History', icon: ListOrdered },
     { id: 'input', label: language === 'ru' ? 'Добавить' : 'Add', icon: PlusCircle },
+    { id: 'calendar', label: language === 'ru' ? 'Календарь' : 'Calendar', icon: CalendarDays },
     { id: 'archive', label: language === 'ru' ? 'AI' : 'AI', icon: Archive },
     { id: 'settings', label: language === 'ru' ? 'Настройки' : 'Settings', icon: Settings },
   ] as const;
@@ -29,7 +30,7 @@ export function MobileBottomNav({ activeTab, onChange }: MobileBottomNavProps) {
           
           if (tab.id === 'input') {
             return (
-              <div key={tab.id} className="flex flex-col items-center justify-end w-1/5 pb-1">
+              <div key={tab.id} className="flex flex-col items-center justify-end w-1/6 pb-1">
                 <button
                   onClick={() => onChange(tab.id as Tab)}
                   aria-label={tab.label}
@@ -55,7 +56,7 @@ export function MobileBottomNav({ activeTab, onChange }: MobileBottomNavProps) {
               onClick={() => onChange(tab.id as Tab)}
               aria-label={tab.label}
               aria-current={isActive ? 'page' : undefined}
-              className={`flex flex-col items-center justify-center w-1/5 gap-1.5 p-2 transition-colors rounded-xl ${
+              className={`flex flex-col items-center justify-center w-1/6 gap-1.5 p-2 transition-colors rounded-xl ${
                 isActive 
                   ? 'text-primary' 
                   : 'text-muted-foreground hover:text-foreground'

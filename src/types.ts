@@ -48,7 +48,41 @@ export interface Transaction {
   tags?: string[];
   fingerprint?: string; // For idempotency and duplicate detection
   
+  // For regular payments
+  regularPaymentId?: string;
+  regularPaymentDueDate?: string; // YYYY-MM-DD
+  
   createdAt: any; // Timestamp
+}
+
+export type RegularPaymentKind = 'subscription' | 'banking';
+export type ScheduleType = 'monthly' | 'yearly' | 'one-time' | 'custom';
+
+export interface RegularPayment {
+  id: string;
+  userId: string;
+  kind: RegularPaymentKind;
+  title: string;
+  amount: number;
+  currency: string;
+  scheduleType: ScheduleType;
+  intervalUnit?: 'day' | 'week' | 'month' | 'year';
+  intervalCount?: number;
+  startDate: string; // YYYY-MM-DD
+  endDate?: string; // YYYY-MM-DD
+  category: Category;
+  iconKey?: string;
+  color?: string;
+  
+  // Banking specific
+  subtype?: 'credit' | 'loan' | 'installment' | 'pay-in-parts' | 'other';
+  totalInstallments?: number;
+  lender?: string;
+  
+  notes?: string;
+  status: 'active' | 'paused' | 'completed';
+  createdAt: any; // Timestamp
+  updatedAt?: any; // Timestamp
 }
 
 export interface DashboardStats {
