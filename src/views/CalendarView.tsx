@@ -36,7 +36,7 @@ import { auth, db } from '../firebase';
 import { addDoc, collection, deleteDoc, doc, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
 import { toast } from 'sonner';
 import { generateOccurrences } from '../lib/recurrence';
-import { getPresetIcon } from '../lib/presets';
+import { getPresetIcon, getPresetColor } from '../lib/presets';
 
 interface CalendarViewProps {
   transactions: Transaction[];
@@ -45,7 +45,6 @@ interface CalendarViewProps {
 }
 
 type KindFilter = 'all' | 'subscription' | 'banking';
-type StatusFilter = 'all' | 'upcoming' | 'paid' | 'overdue' | 'paused';
 
 interface DecoratedOccurrence {
   payment: RegularPayment;
@@ -86,43 +85,6 @@ function KindSegment({
             value === item.value
               ? 'bg-background text-foreground shadow-sm'
               : 'text-muted-foreground hover:text-foreground'
-          )}
-        >
-          {item.label}
-        </button>
-      ))}
-    </div>
-  );
-}
-
-function StatusChips({
-  value,
-  onChange,
-  language,
-}: {
-  value: StatusFilter;
-  onChange: (value: StatusFilter) => void;
-  language: string;
-}) {
-  const items: { value: StatusFilter; label: string }[] = [
-    { value: 'all', label: language === 'ru' ? 'Все статусы' : 'All statuses' },
-    { value: 'upcoming', label: language === 'ru' ? 'Ожидается' : 'Upcoming' },
-    { value: 'paid', label: language === 'ru' ? 'Оплачено' : 'Paid' },
-    { value: 'overdue', label: language === 'ru' ? 'Просрочено' : 'Overdue' },
-    { value: 'paused', label: language === 'ru' ? 'На паузе' : 'Paused' },
-  ];
-
-  return (
-    <div className="flex gap-2 overflow-x-auto pb-1">
-      {items.map((item) => (
-        <button
-          key={item.value}
-          onClick={() => onChange(item.value)}
-          className={cn(
-            'shrink-0 rounded-full px-3 py-1.5 text-xs font-medium transition-all',
-            value === item.value
-              ? 'bg-primary text-primary-foreground'
-              : 'bg-secondary text-muted-foreground hover:text-foreground'
           )}
         >
           {item.label}
@@ -197,7 +159,6 @@ export function CalendarView({ transactions, regularPayments, paymentOccurrences
 
   const [currentMonth, setCurrentMonth] = useState(startOfMonth(new Date()));
   const [kindFilter, setKindFilter] = useState<KindFilter>('all');
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [selectedDate, setSelectedDate] = useState<Date | null>(startOfDay(new Date()));
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPayment, setEditingPayment] = useState<RegularPayment | null>(null);
@@ -253,23 +214,12 @@ export function CalendarView({ transactions, regularPayments, paymentOccurrences
     return rawMonthOccurrences.filter((item) => item.payment.kind === kindFilter);
   }, [kindFilter, rawMonthOccurrences]);
 
-  const visibleOccurrences = useMemo(() => {
-    return kindScopedOccurrences.filter((item) => {
-      if (statusFilter === 'all') return true;
-      if (statusFilter === 'paid') return item.isPaid;
-      if (statusFilter === 'overdue') return item.isOverdue;
-      if (statusFilter === 'upcoming') return !item.isPaid && !item.isOverdue && !item.isSkipped && !item.isPaused;
-      if (statusFilter === 'paused') return item.isPaused;
-      return true;
-    });
-  }, [kindScopedOccurrences, statusFilter]);
-
   const listOccurrences = useMemo(() => {
     if (selectedDate) {
-      return visibleOccurrences.filter((item) => isSameDay(item.dueDate, selectedDate));
+      return kindScopedOccurrences.filter((item) => isSameDay(item.dueDate, selectedDate));
     }
-    return visibleOccurrences;
-  }, [selectedDate, visibleOccurrences]);
+    return kindScopedOccurrences;
+  }, [selectedDate, kindScopedOccurrences]);
 
   const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd });
   const startDay = monthStart.getDay();
@@ -491,97 +441,83 @@ export function CalendarView({ transactions, regularPayments, paymentOccurrences
             </button>
           </div>
 
-          <div className="space-y-3">
+          <div>
             <KindSegment value={kindFilter} onChange={setKindFilter} language={language} />
-            <StatusChips value={statusFilter} onChange={setStatusFilter} language={language} />
           </div>
         </div>
       </section>
 
-      <section className="rounded-[2rem] border border-border bg-card px-4 pb-4 pt-4 shadow-sm sm:px-5">
-        <div className="mb-3 grid grid-cols-7 gap-2">
+      <section className="rounded-[2rem] border border-border bg-card px-3 pb-4 pt-4 shadow-sm sm:px-5">
+        <div className="mb-3 grid grid-cols-7 gap-1.5 sm:gap-2">
           {['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map((day, index) => (
-            <div key={day} className="text-center text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-              {language === 'en' ? ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'][index] : day}
+            <div key={day} className="text-center text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+              {language === 'en' ? ['M', 'T', 'W', 'T', 'F', 'S', 'S'][index] : day}
             </div>
           ))}
         </div>
 
-        <div className="grid grid-cols-7 gap-2">
+        <div className="grid grid-cols-7 gap-1.5 sm:gap-2">
           {paddingDays.map((item) => (
-            <div key={`pad-${item}`} className="aspect-square opacity-0" />
+            <div key={`pad-${item}`} className="aspect-[4/5] opacity-0" />
           ))}
 
           {daysInMonth.map((day) => {
-            const dayOccurrences = visibleOccurrences.filter((item) => isSameDay(item.dueDate, day));
+            const dayOccurrences = kindScopedOccurrences.filter((item) => isSameDay(item.dueDate, day));
             const isSelected = !!selectedDate && isSameDay(day, selectedDate);
-            const hasOverdue = dayOccurrences.some((item) => item.isOverdue);
-            const hasPaid = dayOccurrences.some((item) => item.isPaid);
             const isCurrentDay = isToday(day);
+            const primaryOccurrence = dayOccurrences[0];
 
             return (
               <button
                 key={day.toISOString()}
                 onClick={() => handleDayClick(day)}
                 className={cn(
-                  'relative aspect-square rounded-[1.35rem] border p-1.5 text-left transition-all',
+                  'relative aspect-[4/5] w-full overflow-hidden rounded-[14px] sm:rounded-2xl transition-all',
                   isSelected
-                    ? 'border-primary bg-primary/10 shadow-[0_10px_24px_rgba(99,102,241,0.22)]'
-                    : isCurrentDay
-                      ? 'border-primary/40 bg-primary/6'
-                      : dayOccurrences.length > 0
-                        ? 'border-border bg-secondary/40 hover:bg-secondary/60'
-                        : 'border-transparent bg-transparent hover:bg-secondary/35',
-                  hasOverdue && !isSelected && 'border-destructive/30'
+                    ? 'ring-2 ring-foreground/50 ring-offset-2 ring-offset-card'
+                    : 'ring-1 ring-transparent hover:ring-border',
+                  !primaryOccurrence && 'bg-secondary/40'
                 )}
               >
-                <div className="flex h-full flex-col justify-between">
-                  <div className="flex items-start justify-between">
-                    <span
-                      className={cn(
-                        'text-xs font-semibold',
-                        isSelected || isCurrentDay ? 'text-foreground' : 'text-muted-foreground'
-                      )}
-                    >
-                      {format(day, 'd')}
-                    </span>
+                {/* Tinted Background */}
+                {primaryOccurrence && (
+                  <>
+                    <div className="absolute inset-0 bg-secondary/40" />
+                    <div className={cn("absolute inset-0 opacity-20", getPresetColor(primaryOccurrence.payment.iconKey, primaryOccurrence.payment.color))} />
+                  </>
+                )}
 
-                    {dayOccurrences.length > 0 && (
-                      <span
-                        className={cn(
-                          'rounded-full px-1.5 py-0.5 text-[9px] font-bold',
-                          hasOverdue
-                            ? 'bg-destructive/12 text-destructive'
-                            : hasPaid
-                              ? 'bg-success/12 text-success'
-                              : 'bg-primary/12 text-primary'
-                        )}
-                      >
-                        {dayOccurrences.length}
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="flex items-center justify-center gap-1">
-                    {dayOccurrences.slice(0, 2).map((item) => (
-                      <div
-                        key={item.occurrenceKey}
-                        className={cn(
-                          'flex h-6 w-6 items-center justify-center rounded-full text-white ring-2 ring-card',
-                          item.payment.color || 'bg-zinc-800'
-                        )}
-                      >
-                        {getPresetIcon(item.payment.iconKey, 'h-3.5 w-3.5')}
+                {/* Icon */}
+                {primaryOccurrence && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className={cn(
+                      "flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-full text-white",
+                      "shadow-[0_4px_8px_-2px_rgba(0,0,0,0.4),inset_0_1px_2px_rgba(255,255,255,0.4),inset_0_-2px_4px_rgba(0,0,0,0.2)]",
+                      "border border-white/10",
+                      getPresetColor(primaryOccurrence.payment.iconKey, primaryOccurrence.payment.color)
+                    )}>
+                      <div className="drop-shadow-md">
+                        {getPresetIcon(primaryOccurrence.payment.iconKey, 'h-3.5 w-3.5 sm:h-4 sm:w-4')}
                       </div>
-                    ))}
-
-                    {dayOccurrences.length > 2 && (
-                      <div className="flex h-6 min-w-6 items-center justify-center rounded-full bg-secondary px-1 text-[10px] font-semibold text-muted-foreground">
-                        +{dayOccurrences.length - 2}
+                    </div>
+                    {dayOccurrences.length > 1 && (
+                      <div className="absolute top-1.5 left-1.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-background/90 px-1 text-[9px] font-bold text-foreground shadow-sm backdrop-blur-md">
+                        +{dayOccurrences.length - 1}
                       </div>
                     )}
                   </div>
-                </div>
+                )}
+
+                {/* Date Number */}
+                <span
+                  className={cn(
+                    'absolute bottom-1 right-1 text-[9px] sm:text-[10px] font-medium z-10',
+                    isCurrentDay ? 'text-primary font-bold' : 'text-muted-foreground/50',
+                    isSelected && !isCurrentDay && 'text-foreground font-bold'
+                  )}
+                >
+                  {format(day, 'd')}
+                </span>
               </button>
             );
           })}
@@ -644,11 +580,15 @@ export function CalendarView({ transactions, regularPayments, paymentOccurrences
               <div className="flex items-start gap-3">
                 <div
                   className={cn(
-                    'mt-0.5 flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-white shadow-sm',
-                    occurrence.payment.color || 'bg-zinc-800'
+                    'mt-0.5 flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-white',
+                    'shadow-[0_6px_12px_-2px_rgba(0,0,0,0.4),inset_0_2px_4px_rgba(255,255,255,0.4),inset_0_-4px_6px_rgba(0,0,0,0.2)]',
+                    'border border-white/10',
+                    getPresetColor(occurrence.payment.iconKey, occurrence.payment.color)
                   )}
                 >
-                  {getPresetIcon(occurrence.payment.iconKey, 'h-6 w-6')}
+                  <div className="drop-shadow-md">
+                    {getPresetIcon(occurrence.payment.iconKey, 'h-6 w-6')}
+                  </div>
                 </div>
 
                 <div className="min-w-0 flex-1">

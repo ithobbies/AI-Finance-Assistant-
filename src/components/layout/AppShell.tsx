@@ -16,7 +16,7 @@ interface AppShellProps {
 export function AppShell({ user, onLogout, activeTab, onTabChange, children }: AppShellProps) {
   return (
     <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/30 flex flex-col md:flex-row">
-      <MobileHeader user={user} />
+      <MobileHeader user={user} onSettingsClick={() => onTabChange('settings')} />
       <DesktopSidebar activeTab={activeTab} onChange={onTabChange} user={user} onLogout={onLogout} />
       
       <MainContent>

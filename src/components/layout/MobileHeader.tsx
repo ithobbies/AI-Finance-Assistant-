@@ -1,12 +1,13 @@
 import React from 'react';
-import { Wallet } from 'lucide-react';
+import { Wallet, Settings } from 'lucide-react';
 import { User } from 'firebase/auth';
 
 interface MobileHeaderProps {
   user: User;
+  onSettingsClick: () => void;
 }
 
-export function MobileHeader({ user }: MobileHeaderProps) {
+export function MobileHeader({ user, onSettingsClick }: MobileHeaderProps) {
   return (
     <header className="md:hidden sticky top-0 z-30 flex items-center justify-between px-4 py-3 bg-background/80 backdrop-blur-xl border-b border-border/50">
       <div className="flex items-center gap-2">
@@ -16,6 +17,13 @@ export function MobileHeader({ user }: MobileHeaderProps) {
         <h1 className="text-h3 font-semibold tracking-tight">Finance 2026</h1>
       </div>
       <div className="flex items-center gap-3">
+        <button 
+          onClick={onSettingsClick}
+          className="p-2 text-muted-foreground hover:text-foreground hover:bg-secondary rounded-full transition-colors"
+          aria-label="Settings"
+        >
+          <Settings className="w-5 h-5" />
+        </button>
         {user.photoURL ? (
           <img src={user.photoURL} alt="Avatar" className="w-8 h-8 rounded-full border border-border shadow-sm" referrerPolicy="no-referrer" />
         ) : (
